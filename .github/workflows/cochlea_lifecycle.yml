@@ -44,16 +44,24 @@ jobs:
         run: |
           python cochlea_engine.py
 
-      # LƯU VẾT TÍCH XUNG THÍNH GIÁC VÀO GIT (BỌC THÉP CHỐNG XUNG ĐỘT)
+      # LƯU VẾT TÍCH XUNG THÍNH GIÁC (CHIẾN THUẬT FAST-FORWARD BẤT TỬ)
       - name: Phát xung thính giác lên môi trường mạng
         run: |
           git config --global user.name "Cochlea-Ear-Bot"
           git config --global user.email "bot@cochlea.node"
+          
+          # 1. Kéo ngầm nhánh mới nhất từ server về
+          git fetch origin main
+          
+          # 2. Đưa nhánh về khớp với server nhưng GIỮ NGUYÊN kết quả vừa tính toán
+          git reset origin/main
+          
+          # 3. Gom các tệp ký ức và xung thính giác mới nhất
           git add synapses/ synapse_forward.json 2>/dev/null || true
           
+          # 4. Nếu có biến đổi thì tạo commit mới đè lên đầu và push thẳng
           if ! git diff --staged --quiet; then
             git commit -m "👂 [Xung Thính Giác] Ốc tai vừa nghe xong chuỗi âm thanh [skip ci]"
-            git pull --rebase origin main
             git push origin main
           else
             echo "Không có biến đổi mới."
