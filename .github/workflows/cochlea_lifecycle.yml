@@ -1,0 +1,50 @@
+name: Vòng Đời Ốc Tai Sinh Học (Cochlea HA)
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+  schedule:
+    - cron: '45 */6 * * *' # Chạy lệch nhịp với Mắt và Não
+
+permissions:
+  contents: write
+
+jobs:
+  run-cochlea:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Kéo mã nguồn Ốc Tai
+        uses: actions/checkout@v4
+
+      - name: Cài đặt Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      # CẢM ỨNG MÔI TRƯỜNG: Đón xung đạo hàm từ Bộ Não gửi sang
+      - name: Ngửi xung đạo hàm từ nút Não tương ứng
+        run: |
+          OWNER="${{ github.repository_owner }}"
+          echo "📡 Đang dò tìm xung đạo hàm từ $OWNER/neuron..."
+          curl -s -f "https://raw.githubusercontent.$OWNER/neuron/main/synapse_backward.json" -o synapse_backward.json || echo "🍃 Chưa có xung đạo hàm mới từ Não."
+
+      # VẬN HÀNH ỐC TAI (HẤP THỤ ĐẠO HÀM & LẮNG NGHE SÓNG ÂM)
+      - name: Vận hành Động cơ Ốc Tai
+        run: |
+          python cochlea_engine.py
+
+      # LƯU VẾT TÍCH XUNG THÍNH GIÁC VÀO GIT (BỌC THÉP CHỐNG XUNG ĐỘT)
+      - name: Phát xung thính giác lên môi trường mạng
+        run: |
+          git config --global user.name "Cochlea-Ear-Bot"
+          git config --global user.email "bot@cochlea.node"
+          git add synapses/ synapse_forward.json 2>/dev/null || true
+          
+          if ! git diff --staged --quiet; then
+            git commit -m "👂 [Xung Thính Giác] Ốc tai vừa nghe xong chuỗi âm thanh [skip ci]"
+            git pull --rebase origin main
+            git push origin main
+          else
+            echo "Không có biến đổi mới."
+          fi
