@@ -32,7 +32,7 @@ class CochleaEngine:
         return packet_forward
 
     # 2. CHIỀU NGƯỢC (SPLIT LEARNING): ĐÓN ĐẠO HÀM TỪ NÃO ĐỂ TỰ CHỈNH DÂY ĐÀN
-    def absorb_brain_feedback(self, backward_file="synapse_backward.json"):
+    def absorb_brain_feedback(self, backward_file="verified_backward.json"):
         if not os.path.exists(backward_file):
             print("🍃 [MÔI TRƯỜNG TĨNH] Chưa có xung đạo hàm phản hồi từ Não.")
             return
